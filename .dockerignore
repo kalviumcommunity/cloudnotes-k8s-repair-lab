@@ -1,0 +1,6 @@
+.git
+.gitignore
+README.md
+repair-notes.md
+k8s
+**/.DS_Store
