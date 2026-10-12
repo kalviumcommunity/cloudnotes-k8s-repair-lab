@@ -21,10 +21,10 @@ spec:
               containerPort: 5000
           envFrom:
             - configMapRef:
-                name: cloudnotes-settings
+                name: cloudnotes-config
           readinessProbe:
             httpGet:
-              path: /readyz
+              path: /health
               port: 5000
             initialDelaySeconds: 2
             periodSeconds: 3
