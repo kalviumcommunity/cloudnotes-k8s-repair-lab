@@ -1,6 +1,6 @@
 # Repair notes
 
-Complete during the timed assessment. Do not invent extra faults. Record what you observed, not what you expected before looking.
+Fill this in during the timed assessment. Record what you observed. Do not invent extra faults.
 
 ## Task 1
 
@@ -15,7 +15,7 @@ Complete during the timed assessment. Do not invent extra faults. Record what yo
 - Root cause:
 - File and change:
 - Verification command and result:
-- Readiness explanation (why the pod stayed not Ready, and what Ready means for traffic):
+- Readiness explanation (one sentence: how a readiness failure affects Service traffic, and how that differs from a liveness failure):
 
 ## Task 3
 
@@ -23,4 +23,4 @@ Complete during the timed assessment. Do not invent extra faults. Record what yo
 - Root cause:
 - File and change:
 - Verification command and result:
-- Traffic flow explanation (Service selector, ready endpoints, in-cluster request):
+- Traffic flow explanation (how the Service selects pods, how a ready endpoint is chosen, and how the in-cluster request reaches the app):
