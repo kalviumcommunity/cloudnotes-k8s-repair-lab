@@ -4,13 +4,6 @@ Module 4 MPA starter. Local Kubernetes repair lab.
 
 Repository: https://github.com/kalviumcommunity/cloudnotes-k8s-repair-lab
 
-## Cost: ₹0 / $0
-
-This continuous assessment uses **no paid tools** and **no paid cloud**.
-
-Allowed: the free local cluster the instructor already prepared (kind, minikube, k3s, or Docker Desktop Kubernetes), `kubectl`, a text editor, and Python already inside the supplied image.
-
-Not used and not required: AWS, Azure, GCP, any other cloud account, paid Kubernetes service, registry login, API keys, real credentials, Ingress controller, CI/CD, or a credit card. Do not open a cloud console to “fix” this lab. If a local tool fails, tell the instructor. That is not one of the planted faults.
 
 ## Before the timer
 
@@ -102,6 +95,4 @@ Task 3 — Service DNS, only after a ready backend exists. Prints status code an
 kubectl -n cloudnotes-mpa4 exec deploy/cloudnotes -c api -- python -c "import urllib.request; r=urllib.request.urlopen('http://cloudnotes/health'); print(r.status); print(r.read().decode())"
 ```
 
-## Submission
 
-One PDF. Three labelled sections: cause, fix, verification. Readable screenshots. Corrected YAML or diffs. Completed `repair-notes.md` (text or a readable capture). Fork URL. No pull request required. No paid-tool screenshots.
