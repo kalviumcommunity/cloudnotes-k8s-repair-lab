@@ -1,18 +1,24 @@
 # cloudnotes-k8s-repair-lab
 
-Module 4 MPA starter. Local Kubernetes repair lab. Free tools only. No paid cloud.
+Module 4 MPA starter. Local Kubernetes repair lab.
 
 Repository: https://github.com/kalviumcommunity/cloudnotes-k8s-repair-lab
+
+## Cost: ₹0 / $0
+
+This continuous assessment uses **no paid tools** and **no paid cloud**.
+
+Allowed: the free local cluster the instructor already prepared (kind, minikube, k3s, or Docker Desktop Kubernetes), `kubectl`, a text editor, and Python already inside the supplied image.
+
+Not used and not required: AWS, Azure, GCP, any other cloud account, paid Kubernetes service, registry login, API keys, real credentials, Ingress controller, CI/CD, or a credit card. Do not open a cloud console to “fix” this lab. If a local tool fails, tell the instructor. That is not one of the planted faults.
 
 ## Before the timer
 
 1. Fork this repository, then clone your fork.
 2. Create branch `fix/cloudnotes-k8s-release` before the timer starts.
-3. Instructor prepares the local cluster, namespace, and image. Do not create a cluster, build the image, or download tools during the timer.
+3. The instructor prepares the cluster, namespace, and image. Do not create a cluster, build an image, or install tools during the timer.
 
-Work only in the namespace the instructor assigns. Commands below use `cloudnotes-mpa4`. Replace that name if the instructor gives another one. A shared cluster uses a unique namespace per student.
-
-If a tool or the cluster itself fails, tell the instructor. That is not one of the planted faults.
+Work only in the namespace the instructor assigns. Commands below use `cloudnotes-mpa4`. Replace that name if you are given another one.
 
 ## What the release is supposed to do
 
@@ -30,15 +36,43 @@ If a tool or the cluster itself fails, tell the instructor. That is not one of t
 
 The process runs as a non-root user. This repository has no real secrets. ConfigMap data is only a non-secret environment label.
 
-Keep application code unchanged. Do not remove the readiness check, skip configuration injection, or replace the Service with direct pod access and call that a fix.
+Keep application code unchanged. Do not delete the readiness check. Do not skip configuration injection. Do not replace Service access with direct pod IP access or `kubectl port-forward` and call that a fix. Do not change `imagePullPolicy`. `ImagePullBackOff` is a setup problem — report it.
 
 ## Tasks
 
-The manifests contain exactly three faults. Complete the tasks in order. An earlier fault can hide the next one. Make the smallest valid correction for each fault. Do not change anything else.
+The manifests contain exactly three faults. Do them in order. An earlier fault can hide the next one. Smallest valid correction only.
 
-1. **Startup.** The container does not start. Use pod status, resource details, or events. Repair the manifest that causes startup to fail. Do not change application code. After the fix, confirm the container starts and receives `APP_ENV=local`. The pod may still be unready.
-2. **Readiness.** The container runs but is not ready for traffic. Use cluster diagnostics and the application behaviour above. Keep the readiness check. After the fix, the Deployment rollout must finish and the current pod must be `1/1` Running. In `repair-notes.md`, explain in one sentence how a readiness failure affects Service traffic, and how that differs from a liveness failure.
-3. **Service access.** The pod is ready, but requests through the Service still fail. Use Service, pod, and endpoint evidence. Keep the Service name, ports, and workload identity. After the fix, the Service must have a ready backend. From inside the cluster, request `http://cloudnotes/health` and show HTTP 200 with `status: ok`. Direct pod access or `kubectl port-forward` alone does not prove Service routing.
+### Task 1 — Startup (6 marks)
+
+The container does not start.
+
+1. Capture pod status, `describe`, or events that name the startup problem.
+2. Repair the responsible manifest. Do not change application code or the ConfigMap object.
+3. Apply the change. Show the container is running and that `APP_ENV` is `local`. The pod may still be `0/1` Ready. That is the next task, not a failed fix.
+
+PDF: original diagnostic, corrected YAML or diff, runtime proof of `APP_ENV=local`.
+
+### Task 2 — Readiness (6 marks)
+
+The container runs but is not ready for traffic.
+
+1. Capture the readiness failure from cluster diagnostics. Compare it with the health behaviour above.
+2. Smallest manifest correction. Keep the readiness check. Apply it.
+3. Show `rollout status` success and the current pod `1/1` Running.
+4. One sentence: how a failed readiness check affects Service traffic, and how that differs from a failed liveness check.
+
+PDF: diagnostic, corrected YAML or diff, rollout plus `1/1`, and that sentence.
+
+### Task 3 — Service access (6 marks)
+
+The pod is ready. Requests through the Service still fail.
+
+1. Capture Service, pod label, and endpoint (or EndpointSlice) evidence.
+2. Repair the responsible manifest. Keep the Service name, ports, and workload identity. Apply it.
+3. Show a ready backend on the Service.
+4. From inside the cluster, request `http://cloudnotes/health`. Show HTTP 200 and a body with `status` `ok`.
+
+PDF: communication evidence, corrected YAML or diff, ready endpoint, Service-DNS response. Pod IP or port-forward alone does not count.
 
 ## Commands you may use
 
@@ -54,22 +88,20 @@ kubectl -n cloudnotes-mpa4 rollout status deployment/cloudnotes
 kubectl -n cloudnotes-mpa4 get endpointslices -l kubernetes.io/service-name=cloudnotes -o yaml
 ```
 
-The image includes Python and `urllib`. `curl` is not installed in the container.
+`curl` is not in the container. Python and `urllib` are.
 
-Check injected configuration from inside the running container:
+Task 1 — configuration, after the container is running:
 
 ```bash
 kubectl -n cloudnotes-mpa4 exec deploy/cloudnotes -c api -- python -c "import os; print(os.environ.get('APP_ENV'))"
 ```
 
-Check Service DNS only after the Service has a ready backend. Run this from inside the pod:
+Task 3 — Service DNS, only after a ready backend exists. Prints status code and body:
 
 ```bash
-kubectl -n cloudnotes-mpa4 exec deploy/cloudnotes -c api -- python -c "import urllib.request; print(urllib.request.urlopen('http://cloudnotes/health').read().decode())"
+kubectl -n cloudnotes-mpa4 exec deploy/cloudnotes -c api -- python -c "import urllib.request; r=urllib.request.urlopen('http://cloudnotes/health'); print(r.status); print(r.read().decode())"
 ```
 
-## What to record
+## Submission
 
-Fill `repair-notes.md` during the assessment. For each task, record the original diagnostic, the cause, the file and change, and the verification command plus result. Task 2 also needs the readiness explanation. Task 3 also needs the traffic-flow explanation.
-
-Submission is one PDF: three labelled sections (cause, fix, verification), readable screenshots, corrected YAML or diffs, and the completed repair notes. Include your fork URL. A pull request is not required.
+One PDF. Three labelled sections: cause, fix, verification. Readable screenshots. Corrected YAML or diffs. Completed `repair-notes.md` (text or a readable capture). Fork URL. No pull request required. No paid-tool screenshots.
